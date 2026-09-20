@@ -1,21 +1,33 @@
 import { AudioService } from "./services/audio.js";
 import { LetterPaintModule } from "./modules/letterPaint.js";
+import { MagicPairsModule } from "./modules/magicPairs.js";
+import { WordBuilderModule } from "./modules/wordBuilder.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const audioService = new AudioService();
 
-  // 1. Inicializar Módulo de Pintar por Letras
+  // 1. Inicializar los 3 Módulos
   const letterPaint = new LetterPaintModule(audioService);
+  const magicPairs = new MagicPairsModule(audioService);
+  const wordBuilder = new WordBuilderModule(audioService);
 
-  // 2. Registro de Módulos (Diseñado para escalar con nuevos juegos fácilmente)
+  // 2. Registro Central de Vistas
   const views = {
     letterPaint: {
-      title: "Pinta por Letras HD",
+      title: "Pinta por Letras",
       section: document.getElementById("letterPaintSection"),
       onOpen: () => letterPaint.resizeCanvas()
+    },
+    magicPairs: {
+      title: "Parejas Mágicas",
+      section: document.getElementById("magicPairsSection"),
+      onOpen: () => magicPairs.startNewGame()
+    },
+    wordBuilder: {
+      title: "Arma la Palabra",
+      section: document.getElementById("wordBuilderSection"),
+      onOpen: () => wordBuilder.nextWord()
     }
-    // Para agregar un juego futuro:
-    // abcPuzzle: { title: "Rompecabezas ABC", section: document.getElementById("abcSection"), onOpen: () => puzzle.init() }
   };
 
   // 3. Controlador del Menú Lateral (Drawer)
@@ -47,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!view || !view.section) return;
 
     Object.values(views).forEach(v => {
-      if (v.section) v.section.style.display = "none";
+      v.section.style.display = "none";
     });
     view.section.style.display = "block";
 
