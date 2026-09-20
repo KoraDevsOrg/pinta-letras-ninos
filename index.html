@@ -3,926 +3,126 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pinta por Letras HD - KoraKids</title>
-  <style>
-    :root {
-      --bg: #0d111a;
-      --card: #182030;
-      --border: #2c384e;
-      --accent: #fbbf24;
-      --text: #ffffff;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none; /* Control total del canvas por gestos táctiles */
-      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 8px 10px;
-      overflow: hidden;
-    }
-
-    /* Barra Superior */
-    header {
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 4px;
-      margin-bottom: 6px;
-    }
-
-    .app-brand {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .app-brand h1 {
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .styled-select {
-      background: #232c3f;
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      outline: none;
-    }
-
-    .btn-file-label {
-      background: #2563eb;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 14px;
-      font-size: 0.82rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
-    }
-
-    #fileInput { display: none; }
-
-    /* HUD de Estadísticas y Zoom */
-    .game-hud {
-      width: 100%;
-      max-width: 460px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      font-weight: bold;
-    }
-
-    .hud-pill {
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 12px;
-      color: #93c5fd;
-    }
-
-    /* Contenedor del Lienzo */
-    .canvas-viewport {
-      position: relative;
-      width: 100%;
-      max-width: 460px;
-      height: 52vh; /* Altura ideal adaptable en celulares */
-      min-height: 280px;
-      background: #080b12;
-      border: 3px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    }
-
-    #gameCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      cursor: grab;
-    }
-
-    #gameCanvas:active {
-      cursor: grabbing;
-    }
-
-    #confettiCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    /* Controles Flotantes de Zoom */
-    .zoom-controls {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 10;
-    }
-
-    .btn-zoom {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: rgba(24, 32, 48, 0.88);
-      border: 1.5px solid var(--border);
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-    }
-
-    .btn-zoom:active {
-      transform: scale(0.92);
-      background: #3b82f6;
-    }
-
-    /* Paleta Horizontal Deslizable con todo el Abecedario */
-    .palette-wrapper {
-      width: 100%;
-      max-width: 460px;
-      margin-top: 8px;
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .palette-hint {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
-
-    .palette-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 6px 4px 8px 4px;
-      scrollbar-width: none; /* Oculta barra en Firefox */
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .palette-scroll::-webkit-scrollbar {
-      display: none; /* Oculta barra en Chrome/Safari */
-    }
-
-    .letter-chip {
-      flex: 0 0 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 3px solid #ffffff;
-      font-size: 1.5rem;
-      font-weight: 900;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      transition: transform 0.15s, border-color 0.15s;
-      position: relative;
-    }
-
-    .letter-chip:active, .letter-chip.active {
-      transform: scale(1.15);
-      border-color: #facc15;
-      box-shadow: 0 0 14px #facc15;
-    }
-
-    .letter-chip.completed {
-      opacity: 0.3;
-      transform: scale(0.85);
-      border-style: dashed;
-    }
-
-    .letter-chip .chip-count {
-      font-size: 0.58rem;
-      font-weight: bold;
-      opacity: 0.9;
-    }
-
-    /* Mensaje de Bienvenida */
-    .welcome-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(13, 17, 26, 0.94);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
-      z-index: 20;
-    }
-
-    .welcome-modal h2 {
-      font-size: 1.3rem;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .welcome-modal p {
-      font-size: 0.88rem;
-      color: #d1d5db;
-      margin-bottom: 16px;
-      line-height: 1.4;
-    }
-  </style>
+  <title>KoraKids - Juegos de Letras</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-  <header>
-    <div class="app-brand">
-      <span>🎨</span>
-      <h1>Pinta Letras HD</h1>
+  <!-- BARRA SUPERIOR (APP BAR) -->
+  <header class="app-bar">
+    <button class="btn-drawer-toggle" id="btnOpenDrawer" aria-label="Abrir menú de juegos">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <div class="app-title">
+      <span class="app-logo">🎨</span>
+      <h1 id="currentSectionTitle">Pinta por Letras HD</h1>
     </div>
-
-    <div class="header-actions">
-      <select id="resolutionSelect" class="styled-select" title="Detalle de la imagen">
-        <option value="24">Normal (24x24)</option>
-        <option value="32" selected>Detallado (32x32)</option>
-        <option value="40">HD (40x40 • A-Z)</option>
-      </select>
-
-      <label class="btn-file-label" for="fileInput">
-        📷 Foto
-      </label>
-      <input type="file" id="fileInput" accept="image/*" />
+    <div class="app-header-badge">
+      <span>ABC</span>
     </div>
   </header>
 
-  <div class="game-hud">
-    <span class="hud-pill">Letra: <b id="activeLetterDisplay" style="color:var(--accent); font-size:1.1rem;">-</b></span>
-    <span class="hud-pill">Zoom: <span id="zoomLevelDisplay">100%</span></span>
-    <span class="hud-pill">Pintado: <b id="progressPercent">0%</b> 🌟</span>
-  </div>
+  <!-- MENÚ LATERAL RETRÁCTIL (DRAWER) -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
 
-  <div class="canvas-viewport" id="viewport">
-    <canvas id="gameCanvas"></canvas>
-    <canvas id="confettiCanvas"></canvas>
-
-    <div class="zoom-controls">
-      <button class="btn-zoom" id="btnZoomIn" title="Acercar">＋</button>
-      <button class="btn-zoom" id="btnZoomOut" title="Alejar">－</button>
-      <button class="btn-zoom" id="btnZoomReset" title="Centrar">🎯</button>
+  <aside class="side-drawer" id="sideDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <span class="drawer-logo">🎈</span>
+        <div>
+          <h2>KoraKids</h2>
+          <p>Aprende jugando</p>
+        </div>
+      </div>
+      <button class="btn-drawer-close" id="btnCloseDrawer" aria-label="Cerrar menú">✕</button>
     </div>
 
-    <div class="welcome-modal" id="welcomeModal">
-      <h2>¡Crea tu dibujo con letras! 🖍️</h2>
-      <p>Sube una foto de tu mascota o juguete favorito con el botón <b>"📷 Foto"</b> para pintarla letra por letra.</p>
-      <button class="btn-file-label" onclick="loadSampleCat()" style="background:#10b981; font-size:0.95rem; padding:10px 18px;">
-        🐱 Cargar lindo gatito de muestra
+    <nav class="drawer-nav">
+      <!-- Juego Activo -->
+      <button class="drawer-item active" data-target="letterPaint">
+        <span class="drawer-icon">🎨</span>
+        <div class="drawer-info">
+          <span class="drawer-label">Pinta por Letras</span>
+          <span class="drawer-sub">Pixel art interactivo con zoom</span>
+        </div>
       </button>
+
+      <!-- Espacios listos para futuros minijuegos -->
+      <button class="drawer-item disabled" data-target="futurePuzzle" title="Próximamente">
+        <span class="drawer-icon">🧩</span>
+        <div class="drawer-info">
+          <span class="drawer-label">Rompecabezas ABC</span>
+          <span class="drawer-sub">Próximamente</span>
+        </div>
+      </button>
+
+      <button class="drawer-item disabled" data-target="futureConnect" title="Próximamente">
+        <span class="drawer-icon">✨</span>
+        <div class="drawer-info">
+          <span class="drawer-label">Une los Puntos</span>
+          <span class="drawer-sub">Próximamente</span>
+        </div>
+      </button>
+    </nav>
+
+    <div class="drawer-footer">
+      <p>KoraKids • Estimulación Temprana</p>
     </div>
-  </div>
-
-  <div class="palette-wrapper">
-    <div class="palette-hint">Desliza la barra para elegir letras del abecedario ➔</div>
-    <div class="palette-scroll" id="paletteScroll"></div>
-  </div>
-
-  <script>
-    // ABECEDARIO COMPLETO (26 LETRAS)
-    const FULL_ALPHABET = [
-      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", 
-      "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", 
-      "U", "V", "W", "X", "Y", "Z"
-    ];
-
-    let gridSize = 32; // 32x32 = 1.024 casillas (gran detalle sin lag)
-    let grid = [];     // Matriz [r][c] de casillas
-    let palette = [];  // Paleta de letras extraídas
-    let activeLetter = null;
-
-    let totalTiles = 0;
-    let paintedCount = 0;
-    let currentLoadedImage = null;
-
-    // Canvas y Transformación (Zoom & Pan)
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const confettiCanvas = document.getElementById("confettiCanvas");
-    const confettiCtx = confettiCanvas.getContext("2d");
-
-    let scale = 1;
-    let panX = 0;
-    let panY = 0;
-    const WORLD_SIZE = 1200; // Lienzo virtual de alta definición interna
-
-    // Manejo de punteros y gestos táctiles (Pinch to Zoom)
-    const activePointers = new Map();
-    let prevPinchDist = null;
-    let isPanning = false;
-    let panStart = { x: 0, y: 0 };
-    let hasMoved = false;
-
-    // DOM
-    const paletteScroll = document.getElementById("paletteScroll");
-    const activeLetterDisplay = document.getElementById("activeLetterDisplay");
-    const progressPercent = document.getElementById("progressPercent");
-    const zoomLevelDisplay = document.getElementById("zoomLevelDisplay");
-    const welcomeModal = document.getElementById("welcomeModal");
-    const fileInput = document.getElementById("fileInput");
-    const resolutionSelect = document.getElementById("resolutionSelect");
-
-    // ==========================================
-    // AUDIO Y SÍNTESIS DE VOZ
-    // ==========================================
-    function speakLetter(letter) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(letter.toLowerCase());
-        utterance.lang = 'es-ES';
-        utterance.rate = 0.85;
-        utterance.pitch = 1.15;
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    let audioCtx = null;
-    function playPop() {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.frequency.setValueAtTime(480, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.07);
-        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.07);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.07);
-      } catch (e) {}
-    }
-
-    // ==========================================
-    // CARGA Y PROCESAMIENTO DE IMAGEN
-    // ==========================================
-    resolutionSelect.addEventListener("change", (e) => {
-      gridSize = parseInt(e.target.value, 10);
-      if (currentLoadedImage) {
-        processImage(currentLoadedImage);
-      }
-    });
-
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          currentLoadedImage = img;
-          processImage(img);
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function processImage(img) {
-      welcomeModal.style.display = "none";
-
-      // 1. Determinar cantidad de letras según resolución (hasta 24-26 letras)
-      const colorCount = gridSize === 40 ? 26 : (gridSize === 32 ? 20 : 16);
-      const activeAlphabet = FULL_ALPHABET.slice(0, colorCount);
-
-      // 2. Muestreo de píxeles en canvas temporal
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = gridSize;
-      tempCanvas.height = gridSize;
-      const tCtx = tempCanvas.getContext("2d");
-
-      // Recorte centrado
-      const minSide = Math.min(img.width, img.height);
-      const sx = (img.width - minSide) / 2;
-      const sy = (img.height - minSide) / 2;
-      tCtx.drawImage(img, sx, sy, minSide, minSide, 0, 0, gridSize, gridSize);
-
-      const imgData = tCtx.getImageData(0, 0, gridSize, gridSize).data;
-      const pixels = [];
-      for (let i = 0; i < imgData.length; i += 4) {
-        pixels.push([imgData[i], imgData[i + 1], imgData[i + 2]]);
-      }
-
-      // 3. Cuantización K-Means avanzada
-      const centroids = runKMeans(pixels, activeAlphabet.length);
-
-      // Crear paleta asignada al abecedario
-      palette = centroids.map((rgb, idx) => ({
-        letter: activeAlphabet[idx],
-        rgb: rgb,
-        hex: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
-        contrastText: getContrastYIQ(rgb),
-        remaining: 0
-      }));
-
-      // 4. Crear matriz de juego
-      grid = [];
-      totalTiles = gridSize * gridSize;
-      paintedCount = 0;
-
-      for (let r = 0; r < gridSize; r++) {
-        const row = [];
-        for (let c = 0; c < gridSize; c++) {
-          const idx = (r * gridSize + c) * 4;
-          const pixelRGB = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-
-          let closestIdx = 0;
-          let minDist = Infinity;
-          palette.forEach((p, pIdx) => {
-            const d = colorDistance(pixelRGB, p.rgb);
-            if (d < minDist) {
-              minDist = d;
-              closestIdx = pIdx;
-            }
-          });
-
-          palette[closestIdx].remaining++;
-
-          row.push({
-            letter: palette[closestIdx].letter,
-            color: palette[closestIdx].hex,
-            textColor: palette[closestIdx].contrastText,
-            painted: false
-          });
-        }
-        grid.push(row);
-      }
-
-      // Filtrar colores no usados (si los hubiese)
-      palette = palette.filter(p => p.remaining > 0);
-
-      // Inicializar y centrar vista
-      renderPalette();
-      selectLetter(palette[0].letter);
-      resetView();
-      updateProgressUI();
-    }
-
-    function colorDistance(c1, c2) {
-      return Math.sqrt((c1[0]-c2[0])**2 + (c1[1]-c2[1])**2 + (c1[2]-c2[2])**2);
-    }
-
-    function getContrastYIQ(rgb) {
-      const yiq = ((rgb[0] * 299) + (rgb[1] * 587) + (rgb[2] * 114)) / 1000;
-      return yiq >= 130 ? '#111827' : '#ffffff';
-    }
-
-    function runKMeans(pixels, k) {
-      let centroids = [];
-      const step = Math.floor(pixels.length / k);
-      for (let i = 0; i < k; i++) centroids.push([...pixels[i * step]]);
-
-      for (let iter = 0; iter < 5; iter++) {
-        const clusters = Array.from({ length: k }, () => []);
-        pixels.forEach(p => {
-          let best = 0;
-          let minD = Infinity;
-          centroids.forEach((c, idx) => {
-            const d = colorDistance(p, c);
-            if (d < minD) { minD = d; best = idx; }
-          });
-          clusters[best].push(p);
-        });
-
-        centroids = clusters.map((cluster, idx) => {
-          if (cluster.length === 0) return centroids[idx];
-          const sum = cluster.reduce((acc, p) => [acc[0] + p[0], acc[1] + p[1], acc[2] + p[2]], [0, 0, 0]);
-          return [
-            Math.round(sum[0] / cluster.length),
-            Math.round(sum[1] / cluster.length),
-            Math.round(sum[2] / cluster.length)
-          ];
-        });
-      }
-      return centroids;
-    }
-
-    // ==========================================
-    // RENDERIZADO CON ZOOM Y DETALLE (LOD)
-    // ==========================================
-    function resizeCanvas() {
-      const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = rect.height * window.devicePixelRatio;
-      confettiCanvas.width = canvas.width;
-      confettiCanvas.height = canvas.height;
-      draw();
-    }
-    window.addEventListener("resize", resizeCanvas);
-
-    function resetView() {
-      const rect = canvas.parentElement.getBoundingClientRect();
-      const minCanvasDim = Math.min(rect.width, rect.height) * window.devicePixelRatio;
-      scale = minCanvasDim / WORLD_SIZE;
-      panX = (canvas.width - WORLD_SIZE * scale) / 2;
-      panY = (canvas.height - WORLD_SIZE * scale) / 2;
-      updateZoomUI();
-      draw();
-    }
-
-    function updateZoomUI() {
-      const rect = canvas.parentElement.getBoundingClientRect();
-      const baseScale = (Math.min(rect.width, rect.height) * window.devicePixelRatio) / WORLD_SIZE;
-      const pct = Math.round((scale / baseScale) * 100);
-      zoomLevelDisplay.textContent = `${pct}%`;
-    }
-
-    function draw() {
-      ctx.save();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Aplicar transformación de Zoom y Pan
-      ctx.translate(panX, panY);
-      ctx.scale(scale, scale);
-
-      const tileSize = WORLD_SIZE / gridSize;
-      const screenTileSize = tileSize * scale; // Tamaño real de la casilla en píxeles de pantalla
-
-      // Solo dibujar letras si la casilla es lo bastante grande en pantalla (> 14px)
-      const shouldDrawLetters = screenTileSize > 14;
-
-      for (let r = 0; r < gridSize; r++) {
-        for (let c = 0; c < gridSize; c++) {
-          const tile = grid[r][c];
-          const x = c * tileSize;
-          const y = r * tileSize;
-
-          if (tile.painted) {
-            ctx.fillStyle = tile.color;
-            ctx.fillRect(x, y, tileSize, tileSize);
-          } else {
-            const isTarget = tile.letter === activeLetter;
-
-            // Color de casilla no pintada (resaltado si es la letra activa)
-            ctx.fillStyle = isTarget ? "rgba(250, 204, 21, 0.28)" : "#161d2b";
-            ctx.fillRect(x, y, tileSize, tileSize);
-
-            // Borde
-            ctx.strokeStyle = isTarget ? "#facc15" : "#242e42";
-            ctx.lineWidth = isTarget ? Math.max(1, 1.8 / scale) : Math.max(0.5, 0.8 / scale);
-            ctx.strokeRect(x, y, tileSize, tileSize);
-
-            // Letra visible
-            if (shouldDrawLetters) {
-              ctx.fillStyle = isTarget ? "#facc15" : "#94a3b8";
-              ctx.font = `bold ${Math.floor(tileSize * 0.52)}px sans-serif`;
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-              ctx.fillText(tile.letter, x + tileSize / 2, y + tileSize / 2 + 1);
-            }
-          }
-        }
-      }
-
-      ctx.restore();
-    }
-
-    // ==========================================
-    // PALETA Y SELECCIÓN DE LETRAS
-    // ==========================================
-    function renderPalette() {
-      paletteScroll.innerHTML = "";
-      palette.forEach(item => {
-        const chip = document.createElement("button");
-        chip.className = "letter-chip";
-        chip.id = `chip-${item.letter}`;
-        chip.style.backgroundColor = item.hex;
-        chip.style.color = item.contrastText;
-
-        chip.innerHTML = `
-          <span>${item.letter}</span>
-          <span class="chip-count" id="count-${item.letter}">${item.remaining}</span>
-        `;
-
-        chip.onclick = () => selectLetter(item.letter);
-        paletteScroll.appendChild(chip);
-      });
-    }
-
-    function selectLetter(letter) {
-      activeLetter = letter;
-      activeLetterDisplay.textContent = letter;
-      speakLetter(letter);
-
-      document.querySelectorAll(".letter-chip").forEach(c => {
-        c.classList.toggle("active", c.id === `chip-${letter}`);
-      });
-
-      // Hacer scroll suave hacia la letra elegida en la barra
-      const activeChip = document.getElementById(`chip-${letter}`);
-      if (activeChip) {
-        activeChip.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      }
-
-      draw();
-    }
-
-    function updateProgressUI() {
-      const pct = Math.round((paintedCount / totalTiles) * 100) || 0;
-      progressPercent.textContent = `${pct}%`;
-    }
-
-    // ==========================================
-    // GESTOS TÁCTILES: PINCH ZOOM, PAN Y PINTAR
-    // ==========================================
-    canvas.addEventListener("pointerdown", (e) => {
-      canvas.setPointerCapture(e.pointerId);
-      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      hasMoved = false;
-
-      if (activePointers.size === 1) {
-        isPanning = true;
-        panStart = { x: e.clientX - panX, y: e.clientY - panY };
-      } else if (activePointers.size === 2) {
-        isPanning = false;
-        const pts = Array.from(activePointers.values());
-        prevPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      }
-    });
-
-    canvas.addEventListener("pointermove", (e) => {
-      if (!activePointers.has(e.pointerId)) return;
-      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-      // Gesto de 2 dedos: PINCH ZOOM
-      if (activePointers.size === 2) {
-        const pts = Array.from(activePointers.values());
-        const curDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-        if (prevPinchDist) {
-          const factor = curDist / prevPinchDist;
-          zoomAt((pts[0].x + pts[1].x) / 2, (pts[0].y + pts[1].y) / 2, factor);
-        }
-        prevPinchDist = curDist;
-        hasMoved = true;
-        return;
-      }
-
-      // Si se mueve con 1 dedo y la casilla bajo el dedo es la letra activa: ¡PINTAR AL ARRASTRAR!
-      if (activePointers.size === 1) {
-        const worldPos = screenToWorld(e.clientX, e.clientY);
-        const tileSize = WORLD_SIZE / gridSize;
-        const c = Math.floor(worldPos.x / tileSize);
-        const r = Math.floor(worldPos.y / tileSize);
-
-        if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
-          const tile = grid[r][c];
-          if (tile && !tile.painted && tile.letter === activeLetter) {
-            paintTile(r, c);
-            hasMoved = true;
-            return;
-          }
-        }
-
-        // Si no está pintando, desplaza el lienzo (PAN)
-        if (isPanning) {
-          panX = e.clientX - panStart.x;
-          panY = e.clientY - panStart.y;
-          draw();
-          hasMoved = true;
-        }
-      }
-    });
-
-    function handlePointerUp(e) {
-      activePointers.delete(e.pointerId);
-      if (activePointers.size < 2) prevPinchDist = null;
-
-      // Si fue un toque puntual (Tap sin arrastrar)
-      if (!hasMoved && activePointers.size === 0) {
-        const worldPos = screenToWorld(e.clientX, e.clientY);
-        const tileSize = WORLD_SIZE / gridSize;
-        const c = Math.floor(worldPos.x / tileSize);
-        const r = Math.floor(worldPos.y / tileSize);
-
-        if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
-          paintTile(r, c);
-        }
-      }
-
-      if (activePointers.size === 1) {
-        const remainingPtr = Array.from(activePointers.values())[0];
-        panStart = { x: remainingPtr.x - panX, y: remainingPtr.y - panY };
-        isPanning = true;
-      }
-    }
-
-    canvas.addEventListener("pointerup", handlePointerUp);
-    canvas.addEventListener("pointercancel", handlePointerUp);
-
-    // Zoom con rueda de ratón (para pruebas en PC)
-    canvas.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.15 : 0.85;
-      zoomAt(e.clientX, e.clientY, factor);
-    }, { passive: false });
-
-    function screenToWorld(screenX, screenY) {
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = (screenX - rect.left) * (canvas.width / rect.width);
-      const canvasY = (screenY - rect.top) * (canvas.height / rect.height);
-      return {
-        x: (canvasX - panX) / scale,
-        y: (canvasY - panY) / scale
-      };
-    }
-
-    function zoomAt(screenX, screenY, factor) {
-      const rect = canvas.getBoundingClientRect();
-      const canvasX = (screenX - rect.left) * (canvas.width / rect.width);
-      const canvasY = (screenY - rect.top) * (canvas.height / rect.height);
-
-      const newScale = Math.max(0.3, Math.min(8.0, scale * factor));
-      panX = canvasX - (canvasX - panX) * (newScale / scale);
-      panY = canvasY - (canvasY - panY) * (newScale / scale);
-      scale = newScale;
-
-      updateZoomUI();
-      draw();
-    }
-
-    // Botones Flotantes de Zoom
-    document.getElementById("btnZoomIn").addEventListener("click", () => {
-      zoomAt(canvas.width / 2, canvas.height / 2, 1.35);
-    });
-    document.getElementById("btnZoomOut").addEventListener("click", () => {
-      zoomAt(canvas.width / 2, canvas.height / 2, 0.75);
-    });
-    document.getElementById("btnZoomReset").addEventListener("click", resetView);
-
-    // ==========================================
-    // LÓGICA DE PINTADO
-    // ==========================================
-    function paintTile(r, c) {
-      const tile = grid[r][c];
-      if (tile.painted) return;
-
-      if (tile.letter === activeLetter) {
-        tile.painted = true;
-        paintedCount++;
-
-        const palItem = palette.find(p => p.letter === activeLetter);
-        if (palItem) {
-          palItem.remaining--;
-          const countEl = document.getElementById(`count-${activeLetter}`);
-          if (countEl) countEl.textContent = palItem.remaining;
-
-          if (palItem.remaining <= 0) {
-            const chip = document.getElementById(`chip-${activeLetter}`);
-            if (chip) chip.classList.add("completed");
-
-            // Pasar a la siguiente letra automáticamente
-            const next = palette.find(p => p.remaining > 0);
-            if (next) setTimeout(() => selectLetter(next.letter), 250);
-          }
-        }
-
-        playPop();
-        draw();
-        updateProgressUI();
-
-        if (paintedCount === totalTiles) {
-          triggerWinCelebration();
-        }
-      }
-    }
-
-    // ==========================================
-    // DIBUJO DE MUESTRA Y CELEBRACIÓN
-    // ==========================================
-    function loadSampleCat() {
-      // Genera un dibujo de muestra detallado de un gatito pixelado
-      const sample = document.createElement("canvas");
-      sample.width = 32;
-      sample.height = 32;
-      const sCtx = sample.getContext("2d");
-
-      // Fondo cálido
-      sCtx.fillStyle = "#fed7aa";
-      sCtx.fillRect(0, 0, 32, 32);
-
-      // Orejas
-      sCtx.fillStyle = "#1e293b";
-      sCtx.beginPath();
-      sCtx.moveTo(7, 4); sCtx.lineTo(12, 14); sCtx.lineTo(4, 14); sCtx.fill();
-      sCtx.moveTo(25, 4); sCtx.lineTo(28, 14); sCtx.lineTo(20, 14); sCtx.fill();
-
-      // Cabeza y cuerpo
-      sCtx.fillStyle = "#0f172a";
-      sCtx.beginPath();
-      sCtx.arc(16, 15, 10, 0, Math.PI * 2);
-      sCtx.fill();
-
-      sCtx.beginPath();
-      sCtx.arc(16, 26, 9, 0, Math.PI * 2);
-      sCtx.fill();
-
-      // Ojos verdes
-      sCtx.fillStyle = "#22c55e";
-      sCtx.fillRect(11, 13, 3, 3);
-      sCtx.fillRect(18, 13, 3, 3);
-
-      // Pupilas
-      sCtx.fillStyle = "#000000";
-      sCtx.fillRect(12, 13, 1, 3);
-      sCtx.fillRect(19, 13, 1, 3);
-
-      // Nariz rosa
-      sCtx.fillStyle = "#f43f5e";
-      sCtx.fillRect(15, 17, 2, 2);
-
-      const img = new Image();
-      img.onload = () => {
-        currentLoadedImage = img;
-        processImage(img);
-      };
-      img.src = sample.toDataURL();
-    }
-
-    function triggerWinCelebration() {
-      if ('speechSynthesis' in window) {
-        setTimeout(() => {
-          const winMsg = new SpeechSynthesisUtterance("¡Maravilloso! ¡Has completado toda la obra de arte!");
-          winMsg.lang = 'es-ES';
-          window.speechSynthesis.speak(winMsg);
-        }, 300);
-      }
-
-      let particles = Array.from({ length: 80 }, () => ({
-        x: confettiCanvas.width / 2,
-        y: confettiCanvas.height / 2,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() - 0.8) * 14,
-        color: `hsl(${Math.random() * 360}, 90%, 60%)`,
-        size: Math.random() * 8 + 4
-      }));
-
-      function anim() {
-        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.3;
-          confettiCtx.fillStyle = p.color;
-          confettiCtx.fillRect(p.x, p.y, p.size, p.size);
-        });
-
-        particles = particles.filter(p => p.y < confettiCanvas.height + 20);
-        if (particles.length > 0) requestAnimationFrame(anim);
-      }
-      anim();
-    }
-
-    // Iniciar con tamaño adecuado del canvas al cargar
-    setTimeout(resizeCanvas, 50);
-  </script>
+  </aside>
+
+  <!-- CONTENEDOR PRINCIPAL DE MÓDULOS -->
+  <main class="container">
+
+    <!-- MÓDULO 1: PINTA POR LETRAS HD -->
+    <section class="game-module" id="letterPaintSection">
+      <div class="game-controls-bar">
+        <select id="resolutionSelect" class="styled-select" title="Detalle de la imagen">
+          <option value="24">Normal (24x24)</option>
+          <option value="32" selected>Detallado (32x32)</option>
+          <option value="40">HD (40x40 • A-Z)</option>
+        </select>
+
+        <label class="btn-file-label" for="fileInput">
+          📷 Elegir Foto
+        </label>
+        <input type="file" id="fileInput" accept="image/*" />
+      </div>
+
+      <div class="game-hud">
+        <span class="hud-pill">Letra: <b id="activeLetterDisplay">-</b></span>
+        <span class="hud-pill">Zoom: <span id="zoomLevelDisplay">100%</span></span>
+        <span class="hud-pill">Progreso: <b id="progressPercent">0%</b> 🌟</span>
+      </div>
+
+      <div class="canvas-viewport" id="viewport">
+        <canvas id="gameCanvas"></canvas>
+        <canvas id="confettiCanvas"></canvas>
+
+        <div class="zoom-controls">
+          <button class="btn-zoom" id="btnZoomIn" title="Acercar">＋</button>
+          <button class="btn-zoom" id="btnZoomOut" title="Alejar">－</button>
+          <button class="btn-zoom" id="btnZoomReset" title="Centrar">🎯</button>
+        </div>
+
+        <div class="welcome-modal" id="welcomeModal">
+          <h2>¡Crea tu dibujo con letras! 🖍️</h2>
+          <p>Sube una foto de tu mascota o juguete con <b>"📷 Elegir Foto"</b> para pintarla letra por letra.</p>
+          <button class="btn-sample" id="btnLoadSample">
+            🐱 Cargar gatito de muestra
+          </button>
+        </div>
+      </div>
+
+      <div class="palette-wrapper">
+        <div class="palette-hint">Desliza la barra para elegir letras del abecedario ➔</div>
+        <div class="palette-scroll" id="paletteScroll"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
