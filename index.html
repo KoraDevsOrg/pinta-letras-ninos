@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Pinta por Letras - KoraKids</title>
+  <style>
+    :root {
+      --bg: #121826;
+      --card: #1f293d;
+      --accent: #f59e0b;
+      --text: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Rounded MT Bold', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    /* Cabecera */
+    header {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .app-brand h1 {
+      font-size: 1.3rem;
+      color: #fbbf24;
+    }
+
+    .btn-file-label {
+      background: #3b82f6;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* Tablero y Canvas */
+    .game-container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      background: #0b0f19;
+      border: 4px solid #374151;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      touch-action: none;
+    }
+
+    #gameCanvas {
+      display: block;
+      cursor: pointer;
+    }
+
+    #confettiCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Estado e Indicadores */
+    .status-bar {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #93c5fd;
+    }
+
+    .progress-pill {
+      background: #1f293d;
+      padding: 4px 12px;
+      border-radius: 12px;
+      border: 1px solid #374151;
+    }
+
+    /* Paleta de Letras para Niños */
+    .palette-container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--card);
+      border-radius: 16px;
+      border: 2px solid #374151;
+    }
+
+    .letter-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      color: #ffffff;
+      font-size: 1.6rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.15s ease, border-color 0.15s;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+    }
+
+    .letter-btn:active, .letter-btn.active {
+      transform: scale(1.18);
+      border-color: #facc15;
+      box-shadow: 0 0 15px #facc15;
+    }
+
+    .letter-btn.completed {
+      opacity: 0.35;
+      transform: scale(0.9);
+      border-style: dashed;
+    }
+
+    /* Pantalla de carga / Bienvenida */
+    .welcome-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 24, 38, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      border-radius: 12px;
+    }
+
+    .welcome-overlay h2 {
+      font-size: 1.4rem;
+      color: #fbbf24;
+      margin-bottom: 10px;
+    }
+
+    .welcome-overlay p {
+      font-size: 0.95rem;
+      color: #d1d5db;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="app-brand">
+      <span>🎨</span>
+      <h1>Pinta Letras</h1>
+    </div>
+    <label class="btn-file-label" for="fileInput">
+      📷 Elegir Foto
+    </label>
+    <input type="file" id="fileInput" accept="image/*" />
+  </header>
+
+  <main class="game-container">
+    <div class="status-bar">
+      <span class="progress-pill">Letra: <b id="activeLetterText" style="color:#fbbf24;">-</b></span>
+      <span class="progress-pill">Pintado: <b id="progressPercent">0%</b> 🌟</span>
+    </div>
+
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <canvas id="gameCanvas" width="360" height="360"></canvas>
+      <canvas id="confettiCanvas" width="360" height="360"></canvas>
+
+      <!-- Mensaje inicial -->
+      <div class="welcome-overlay" id="welcomeOverlay">
+        <h2>¡Bienvenido pequeño artista! 🖍️</h2>
+        <p>Toca el botón azul <b>"Elegir Foto"</b> arriba para convertir cualquier juguete o dibujo en tu cuadro mágico de letras.</p>
+        <button class="btn-file-label" onclick="loadDefaultDrawing()" style="background:#10b981;">
+          🎈 O jugar con dibujo de prueba
+        </button>
+      </div>
+    </div>
+
+    <!-- Paleta de Letras -->
+    <div class="palette-container" id="paletteContainer"></div>
+  </main>
+
+  <script>
+    // Configuración del tablero para niños
+    const GRID_SIZE = 14; // 14x14 = 196 casillas (perfecto para que no se cansen)
+    const LETTERS = ["A", "B", "C", "D", "E", "F"]; // 6 colores/letras principales
+
+    let grid = []; // Matriz [fila][columna] con { letter, color, originalRgb, painted }
+    let palette = []; // Lista de { letter, hex, rgb }
+    let activeLetter = null;
+    let totalTiles = 0;
+    let paintedCount = 0;
+    let isDrawing = false;
+
+    const gameCanvas = document.getElementById("gameCanvas");
+    const ctx = gameCanvas.getContext("2d");
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const confettiCtx = confettiCanvas.getContext("2d");
+
+    const paletteContainer = document.getElementById("paletteContainer");
+    const activeLetterText = document.getElementById("activeLetterText");
+    const progressPercent = document.getElementById("progressPercent");
+    const welcomeOverlay = document.getElementById("welcomeOverlay");
+    const fileInput = document.getElementById("fileInput");
+
+    // ==========================================
+    // AUDIO & VOZ NATIVA
+    // ==========================================
+    function speakLetter(letter) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(letter.toLowerCase());
+        msg.lang = 'es-ES'; // Fonética en español
+        msg.rate = 0.85;    // Voz clara y pausada
+        msg.pitch = 1.2;   // Tono dulce para niños
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    // Efecto de sonido pop al pintar con Web Audio API
+    let audioCtx = null;
+    function playPopSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    function playSuccessSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Acorde mayor alegre
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (idx * 0.1));
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime + (idx * 0.1));
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + (idx * 0.1) + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + (idx * 0.1));
+          osc.stop(audioCtx.currentTime + (idx * 0.1) + 0.3);
+        });
+      } catch (e) {}
+    }
+
+    // ==========================================
+    // PROCESAMIENTO DE IMAGEN LOCAL
+    // ==========================================
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => processImageToGrid(img);
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Dibujo de prueba inicial por si no cargan foto de inmediato
+    function loadDefaultDrawing() {
+      const testCanvas = document.createElement("canvas");
+      testCanvas.width = 14;
+      testCanvas.height = 14;
+      const tCtx = testCanvas.getContext("2d");
+      // Dibuja un corazón simple
+      tCtx.fillStyle = "#ffffff";
+      tCtx.fillRect(0, 0, 14, 14);
+      tCtx.fillStyle = "#ef4444";
+      tCtx.beginPath();
+      tCtx.arc(4, 5, 3, 0, Math.PI * 2);
+      tCtx.arc(9, 5, 3, 0, Math.PI * 2);
+      tCtx.fill();
+      tCtx.beginPath();
+      tCtx.moveTo(2, 6);
+      tCtx.lineTo(7, 12);
+      tCtx.lineTo(12, 6);
+      tCtx.fill();
+
+      const img = new Image();
+      img.onload = () => processImageToGrid(img);
+      img.src = testCanvas.toDataURL();
+    }
+
+    function processImageToGrid(img) {
+      welcomeOverlay.style.display = "none";
+
+      // 1. Escalar imagen a GRID_SIZE x GRID_SIZE en canvas oculto
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = GRID_SIZE;
+      tempCanvas.height = GRID_SIZE;
+      const tCtx = tempCanvas.getContext("2d");
+
+      // Ajuste cuadrado centrado
+      const minDim = Math.min(img.width, img.height);
+      const sx = (img.width - minDim) / 2;
+      const sy = (img.height - minDim) / 2;
+      tCtx.drawImage(img, sx, sy, minDim, minDim, 0, 0, GRID_SIZE, GRID_SIZE);
+
+      const imgData = tCtx.getImageData(0, 0, GRID_SIZE, GRID_SIZE).data;
+
+      // 2. Extraer lista de píxeles RGB
+      const pixels = [];
+      for (let i = 0; i < imgData.length; i += 4) {
+        pixels.push([imgData[i], imgData[i + 1], imgData[i + 2]]);
+      }
+
+      // 3. Cuantizar colores en K paletas (K-Means simple para 6 colores)
+      const centroids = getKMeansColors(pixels, LETTERS.length);
+
+      // Crear paleta con letras asignadas
+      palette = centroids.map((rgb, idx) => ({
+        letter: LETTERS[idx],
+        rgb: rgb,
+        hex: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+      }));
+
+      // 4. Construir la cuadrícula del juego
+      grid = [];
+      totalTiles = GRID_SIZE * GRID_SIZE;
+      paintedCount = 0;
+
+      for (let r = 0; r < GRID_SIZE; r++) {
+        const row = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const pixelIdx = (r * GRID_SIZE + c) * 4;
+          const rColor = [imgData[pixelIdx], imgData[pixelIdx + 1], imgData[pixelIdx + 2]];
+
+          // Encontrar el color/letra más cercano en la paleta
+          let closestIdx = 0;
+          let minDist = Infinity;
+          palette.forEach((p, pIdx) => {
+            const d = colorDistance(rColor, p.rgb);
+            if (d < minDist) {
+              minDist = d;
+              closestIdx = pIdx;
+            }
+          });
+
+          row.push({
+            letter: palette[closestIdx].letter,
+            color: palette[closestIdx].hex,
+            painted: false
+          });
+        }
+        grid.push(row);
+      }
+
+      // 5. Inicializar interfaz y primera letra
+      renderPalette();
+      selectLetter(palette[0].letter);
+      drawGrid();
+      updateProgress();
+    }
+
+    // Distancia Euclidiana de color
+    function colorDistance(c1, c2) {
+      return Math.sqrt(
+        Math.pow(c1[0] - c2[0], 2) +
+        Math.pow(c1[1] - c2[1], 2) +
+        Math.pow(c1[2] - c2[2], 2)
+      );
+    }
+
+    // K-Means simple para obtener colores representativos
+    function getKMeansColors(pixels, k) {
+      // Tomar k colores iniciales distribuidos
+      let centroids = [];
+      const step = Math.floor(pixels.length / k);
+      for (let i = 0; i < k; i++) {
+        centroids.push([...pixels[i * step]]);
+      }
+
+      // 4 iteraciones rápidas son suficientes para un juego de niños
+      for (let iter = 0; iter < 4; iter++) {
+        const clusters = Array.from({ length: k }, () => []);
+        pixels.forEach(p => {
+          let best = 0;
+          let minD = Infinity;
+          centroids.forEach((c, idx) => {
+            const d = colorDistance(p, c);
+            if (d < minD) { minD = d; best = idx; }
+          });
+          clusters[best].push(p);
+        });
+
+        centroids = clusters.map((cluster, idx) => {
+          if (cluster.length === 0) return centroids[idx];
+          const sum = cluster.reduce((acc, p) => [acc[0] + p[0], acc[1] + p[1], acc[2] + p[2]], [0, 0, 0]);
+          return [
+            Math.round(sum[0] / cluster.length),
+            Math.round(sum[1] / cluster.length),
+            Math.round(sum[2] / cluster.length)
+          ];
+        });
+      }
+      return centroids;
+    }
+
+    // ==========================================
+    // RENDERIZADO DEL JUEGO
+    // ==========================================
+    function drawGrid() {
+      const tileSize = gameCanvas.width / GRID_SIZE;
+      ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const tile = grid[r][c];
+          const x = c * tileSize;
+          const y = r * tileSize;
+
+          if (tile.painted) {
+            // Casilla pintada: color real sin bordes distractores
+            ctx.fillStyle = tile.color;
+            ctx.fillRect(x, y, tileSize, tileSize);
+          } else {
+            // Casilla sin pintar: fondo suave
+            const isMatch = tile.letter === activeLetter;
+            ctx.fillStyle = isMatch ? "#2a3447" : "#192231";
+            ctx.fillRect(x, y, tileSize, tileSize);
+
+            // Borde suave de casilla
+            ctx.strokeStyle = isMatch ? "#60a5fa" : "#2d3748";
+            ctx.lineWidth = isMatch ? 2 : 1;
+            ctx.strokeRect(x + 0.5, y + 0.5, tileSize - 1, tileSize - 1);
+
+            // Letra visible
+            ctx.fillStyle = isMatch ? "#facc15" : "#94a3b8";
+            ctx.font = `bold ${Math.floor(tileSize * 0.58)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(tile.letter, x + tileSize / 2, y + tileSize / 2 + 1);
+          }
+        }
+      }
+    }
+
+    function renderPalette() {
+      paletteContainer.innerHTML = "";
+      palette.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "letter-btn";
+        btn.id = `btn-${item.letter}`;
+        btn.style.backgroundColor = item.hex;
+        btn.textContent = item.letter;
+        btn.onclick = () => selectLetter(item.letter);
+        paletteContainer.appendChild(btn);
+      });
+    }
+
+    function selectLetter(letter) {
+      activeLetter = letter;
+      activeLetterText.textContent = letter;
+
+      // Reproducir sonido fonético "¡A!", "¡B!"...
+      speakLetter(letter);
+
+      // Actualizar estilo de botones
+      document.querySelectorAll(".letter-btn").forEach(b => {
+        b.classList.toggle("active", b.textContent === letter);
+      });
+
+      // Redibujar cuadrícula para iluminar las casillas de esa letra
+      drawGrid();
+    }
+
+    // ==========================================
+    // INTERACCIÓN TÁCTIL / RATÓN
+    // ==========================================
+    function handlePointer(e) {
+      const rect = gameCanvas.getBoundingClientRect();
+      const scaleX = gameCanvas.width / rect.width;
+      const scaleY = gameCanvas.height / rect.height;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const x = (clientX - rect.left) * scaleX;
+      const y = (clientY - rect.top) * scaleY;
+
+      const tileSize = gameCanvas.width / GRID_SIZE;
+      const col = Math.floor(x / tileSize);
+      const row = Math.floor(y / tileSize);
+
+      if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
+        paintTile(row, col);
+      }
+    }
+
+    function paintTile(r, c) {
+      const tile = grid[r][c];
+      if (tile.painted) return;
+
+      // Comprobar si la letra seleccionada coincide
+      if (tile.letter === activeLetter) {
+        tile.painted = true;
+        paintedCount++;
+        playPopSound();
+        drawGrid();
+        updateProgress();
+        checkLetterCompleted(activeLetter);
+
+        // Si terminó todo el dibujo
+        if (paintedCount === totalTiles) {
+          triggerCelebration();
+        }
+      }
+    }
+
+    function checkLetterCompleted(letter) {
+      // Verifica si ya se pintaron todas las letras de ese tipo
+      let remaining = false;
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          if (grid[r][c].letter === letter && !grid[r][c].painted) {
+            remaining = true;
+            break;
+          }
+        }
+      }
+
+      if (!remaining) {
+        const btn = document.getElementById(`btn-${letter}`);
+        if (btn) btn.classList.add("completed");
+        // Pasar automáticamente a la siguiente letra no completada
+        const next = palette.find(p => {
+          const b = document.getElementById(`btn-${p.letter}`);
+          return b && !b.classList.contains("completed");
+        });
+        if (next) setTimeout(() => selectLetter(next.letter), 300);
+      }
+    }
+
+    function updateProgress() {
+      const pct = Math.round((paintedCount / totalTiles) * 100) || 0;
+      progressPercent.textContent = `${pct}%`;
+    }
+
+    // Eventos de arrastre táctil y ratón
+    gameCanvas.addEventListener("pointerdown", (e) => {
+      isDrawing = true;
+      handlePointer(e);
+    });
+    window.addEventListener("pointermove", (e) => {
+      if (isDrawing) handlePointer(e);
+    });
+    window.addEventListener("pointerup", () => isDrawing = false);
+
+    // ==========================================
+    // CONFETI Y CELEBRACIÓN
+    // ==========================================
+    function triggerCelebration() {
+      playSuccessSound();
+      if ('speechSynthesis' in window) {
+        setTimeout(() => {
+          const winMsg = new SpeechSynthesisUtterance("¡Muy bien! ¡Completaste el dibujo!");
+          winMsg.lang = 'es-ES';
+          window.speechSynthesis.speak(winMsg);
+        }, 400);
+      }
+
+      // Animación de confeti en canvas
+      let particles = Array.from({ length: 70 }, () => ({
+        x: confettiCanvas.width / 2,
+        y: confettiCanvas.height / 2,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.7) * 12,
+        color: `hsl(${Math.random() * 360}, 90%, 60%)`,
+        size: Math.random() * 8 + 4
+      }));
+
+      function animate() {
+        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.25; // Gravedad
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.fillRect(p.x, p.y, p.size,);
+        });
+
+        particles = particles.filter(p => p.y < confettiCanvas.height + 20);
+        if (particles.length > 0) requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
+          
