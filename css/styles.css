@@ -751,3 +751,138 @@ body {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(251, 191, 36, 0.35);
 }
+
+/* ==========================================
+   ESTILOS: LABERINTO MÁGICO (MODULE 4)
+   ========================================== */
+.maze-game-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-custom-phrase {
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.35);
+}
+
+.maze-phrase-hint {
+  font-size: 0.88rem;
+  color: var(--accent);
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Casillas superiores donde se van llenando las letras de la frase */
+.maze-phrase-slots {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  background: #101622;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+}
+
+.maze-slot {
+  width: 32px;
+  height: 38px;
+  background: #1e2638;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.maze-slot.active-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  transform: scale(1.08);
+}
+
+.maze-slot.filled {
+  background: #22c55e;
+  border-color: #4ade80;
+  color: #000;
+}
+
+.maze-slot-space {
+  width: 14px;
+}
+
+.maze-canvas-wrapper {
+  background: #080b12;
+  border: 3px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#mazeCanvas {
+  display: block;
+}
+
+/* Cruceta Táctil (D-PAD) Grande y Amigable */
+.dpad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.dpad-middle-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dpad-btn {
+  width: 54px;
+  height: 52px;
+  background: #252e42;
+  border: 2px solid #38bdf8;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+.dpad-btn:active {
+  transform: scale(0.92);
+  background: #3b82f6;
+}
+
+.dpad-btn.reset {
+  background: #1e2536;
+  border-color: var(--accent);
+  font-size: 1.2rem;
+}
