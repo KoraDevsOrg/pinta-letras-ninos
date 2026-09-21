@@ -2,14 +2,16 @@ import { AudioService } from "./services/audio.js";
 import { LetterPaintModule } from "./modules/letterPaint.js";
 import { MagicPairsModule } from "./modules/magicPairs.js";
 import { WordBuilderModule } from "./modules/wordBuilder.js";
+import { WordMazeModule } from "./modules/wordMaze.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const audioService = new AudioService();
 
-  // 1. Inicializar los 3 Módulos
+  // 1. Inicializar los 4 Módulos
   const letterPaint = new LetterPaintModule(audioService);
   const magicPairs = new MagicPairsModule(audioService);
   const wordBuilder = new WordBuilderModule(audioService);
+  const wordMaze = new WordMazeModule(audioService);
 
   // 2. Registro Central de Vistas
   const views = {
@@ -27,6 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
       title: "Arma la Palabra",
       section: document.getElementById("wordBuilderSection"),
       onOpen: () => wordBuilder.nextWord()
+    },
+    wordMaze: {
+      title: "Laberinto Mágico",
+      section: document.getElementById("wordMazeSection"),
+      onOpen: () => wordMaze.startNewMaze()
     }
   };
 
