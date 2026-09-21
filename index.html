@@ -66,7 +66,18 @@
           <span class="drawer-sub">Aprende a leer y escribir</span>
         </div>
       </button>
+      
+      <!-- Juego 4: Laberinto Mágico -->
+      <button class="drawer-item" data-target="wordMaze">
+        <span class="drawer-icon">🌀</span>
+        <div class="drawer-info">
+          <span class="drawer-label">Laberinto Mágico</span>
+          <span class="drawer-sub">Atrapa letras y crea frases</span>
+        </div>
+      </button>
+
     </nav>
+    
 
     <div class="drawer-footer">
       <p>KoraKids • Lectoescritura Inicial</p>
@@ -181,9 +192,58 @@
         </div>
       </div>
     </section>
+    
+    <!-- JUEGO 4: LABERINTO MÁGICO DE FRASES -->
+    <section class="game-module" id="wordMazeSection" style="display: none;">
+      <div class="game-controls-bar">
+        <select id="mazeCategorySelect" class="styled-select">
+          <option value="all">✨ Todas las frases</option>
+          <option value="bonitas">💖 Frases Bonitas</option>
+          <option value="peliculas">🍿 Películas Famosas</option>
+        </select>
+
+        <select id="mazeAvatarSelect" class="styled-select" title="Elige tu personaje">
+          <option value="⭐">⭐ Estrella</option>
+          <option value="🦄">🦄 Unicornio</option>
+          <option value="🚀">🚀 Cohete</option>
+          <option value="👑">👑 Princesa</option>
+          <option value="🦸‍♂️">🦸 Héroe</option>
+          <option value="🐱">🐱 Gatito</option>
+        </select>
+
+        <button class="btn-custom-phrase" id="btnCustomPhrase" title="Escribir una frase personalizada">
+          ✍️ Personalizar
+        </button>
+      </div>
+
+      <!-- Tarjeta del Laberinto -->
+      <div class="maze-game-card">
+        <p class="maze-phrase-hint" id="mazePhraseHint">¡Encuentra las letras para formar la frase!</p>
+
+        <!-- Casillas de la frase a completar -->
+        <div class="maze-phrase-slots" id="mazePhraseSlots"></div>
+
+        <!-- Canvas del Laberinto -->
+        <div class="maze-canvas-wrapper">
+          <canvas id="mazeCanvas"></canvas>
+        </div>
+
+        <!-- Controles Móviles: D-Pad en Pantalla -->
+        <div class="dpad-container">
+          <button class="dpad-btn up" id="btnMazeUp" aria-label="Arriba">▲</button>
+          <div class="dpad-middle-row">
+            <button class="dpad-btn left" id="btnMazeLeft" aria-label="Izquierda">◀</button>
+            <button class="dpad-btn reset" id="btnResetMaze" title="Nuevo Laberinto">🔄</button>
+            <button class="dpad-btn right" id="btnMazeRight" aria-label="Derecha">▶</button>
+          </div>
+          <button class="dpad-btn down" id="btnMazeDown" aria-label="Abajo">▼</button>
+        </div>
+      </div>
+    </section>
+    
 
   </main>
 
-  <script type="module" src="js/app.js?v=3.0"></script>
+  <script type="module" src="js/app.js?v=4.0"></script>
 </body>
 </html>
